@@ -1,0 +1,128 @@
+[
+    {
+        "id": "c7747b3a3fa4731b",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "eced0fe8d5f9b5eb",
+        "type": "mqtt in",
+        "z": "c7747b3a3fa4731b",
+        "name": "",
+        "topic": "dcandino/grupoWhari/sala1/ambiente",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "6716b1401d62b71a",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 610,
+        "y": 360,
+        "wires": [
+            [
+                "74a40020e848ea59"
+            ]
+        ]
+    },
+    {
+        "id": "43ae83db799347ec",
+        "type": "debug",
+        "z": "c7747b3a3fa4731b",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1380,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "74a40020e848ea59",
+        "type": "function",
+        "z": "c7747b3a3fa4731b",
+        "name": "function 1",
+        "func": "// DataCenter Andino S.A.C. - TA3 - Clasificación corregida según guía\n// Umbrales configurables (exigido por la guía)\nconst UMBRALES = {\n    TEMP_ADVERTENCIA: 28,\n    TEMP_CRITICO: 30,\n    HUM_ADVERTENCIA: 70, // extra - justificado en informe\n    HUM_CRITICO: 80\n};\n\nlet temp = msg.payload.temp;\nlet hum = msg.payload.hum;\nlet luz = msg.payload.luz_pct;\n\nlet estado = \"normal\";\nlet motivo = [];\nlet info_luz = \"OK\";\n\n// Lógica principal = SOLO TEMPERATURA (según enunciado)\nif (temp >= UMBRALES.TEMP_CRITICO) {\n    estado = \"critica\"; // usa \"critica\" como dice la guía\n    motivo.push(`Temp crítica: ${temp}°C >= ${UMBRALES.TEMP_CRITICO}°C`);\n} else if (temp >= UMBRALES.TEMP_ADVERTENCIA) {\n    estado = \"advertencia\";\n    motivo.push(`Temp advertencia: ${temp}°C en rango [28 - 30)°C`);\n}\n\n// Humedad como variable extra (justificada)\nif (hum >= UMBRALES.HUM_CRITICO) {\n    motivo.push(`Humedad alta crítica: ${hum}%`);\n} else if (hum >= UMBRALES.HUM_ADVERTENCIA) {\n    motivo.push(`Humedad alta: ${hum}% - riesgo condensación`);\n}\n\n// Luz = SOLO informativa, NO dispara crítico (corrección punto 2)\nif (luz < 20) {\n    info_luz = `luz encendida fuera de ventana de mantenimiento (${luz}%) - informativo`;\n}\n\nmsg.payload.estado = estado;\nmsg.payload.motivo = motivo;\nmsg.payload.info_luz = info_luz;\nmsg.payload.umbrales_usados = UMBRALES;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1100,
+        "y": 360,
+        "wires": [
+            [
+                "43ae83db799347ec"
+            ]
+        ]
+    },
+    {
+        "id": "753b49864758827b",
+        "type": "inject",
+        "z": "c7747b3a3fa4731b",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"device_id\":\"esp32-sala1\",\"temp\":30,\"hum\":40,\"luz_pct\":75}",
+        "payloadType": "json",
+        "x": 710,
+        "y": 220,
+        "wires": [
+            [
+                "74a40020e848ea59"
+            ]
+        ]
+    },
+    {
+        "id": "6716b1401d62b71a",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "broker.hivemq.com",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]
