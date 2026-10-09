@@ -1,20 +1,27 @@
-@"
-# DataCenterAndino S.A.C. - TA3 Grupo Whari
+# DataCenterAndino S.A.C. - Monitoreo IoT - TA3
 
-Sistema IoT de monitoreo ambiental para sala de servidores.
+Sistema IoT para monitoreo ambiental de sala de servidores del DataCenter Andino.
+Simulación ESP32 en Wokwi + MQTT (broker.hivemq.com) + clasificación en Node-RED.
 
-**Stack:** ESP32 (Wokwi) + DHT22 + LDR -> MQTT (broker.hivemq.com) -> Node-RED
+## Arquitectura
+ESP32 (Wokwi) -> DHT22 (temp/hum) + LDR (luz) -> MQTT Topic: `dcandino/grupoWhari/sala1/ambiente` -> Node-RED (function clasificador) -> Debug Dashboard
 
-**Topico:** dcandino/grupoWhari/sala1/ambiente
+## Lógica de Clasificación (corregida según guía)
 
-**Clasificacion:**
-- normal: temp <=27, hum <=70, luz >=20
-- advertencia: temp >27 o hum >70 o luz <20
-- critico: temp >30 o hum >80 o luz <10
+Umbrales configurables en el nodo Function (variable `UMBRALES`):
 
-**Evidencia:** captura debug con estado: normal / advertencia / critico
-"@ | Out-File -Encoding utf8 README.md
+- **NORMAL:** temp < 28°C
+- **ADVERTENCIA:** 28°C <= temp < 30°C
+- **CRÍTICA:** temp >= 30°C
 
-git add README.md
-git commit -m "Agrega README TA3"
-git push
+### Variables complementarias
+- **Luz (luz_pct):** Variable complementaria según enunciado. Por sí sola NO autoriza conclusión de estado crítico. Solo genera estado informativo: `luz encendida fuera de ventana de mantenimiento` si luz < 20%.
+- **Humedad:** Variable extra del grupo. Umbral advertencia 70% y crítico 80% justificado por riesgo de condensación y corrosión en racks (ASHRAE recomienda <60% HR para data centers, usamos margen operativo).
+
+## Evidencia
+1. `estado: normal` con temp 24°C
+2. `estado: advertencia` con temp 28.5°C
+3. `estado: critica` con temp 30°C
+
+## Repo
+https://github.com/WhariCDH/DataCenterAndinoS.A.C.
