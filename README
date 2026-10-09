@@ -1,0 +1,20 @@
+@"
+# DataCenterAndino S.A.C. - TA3 Grupo Whari
+
+Sistema IoT de monitoreo ambiental para sala de servidores.
+
+**Stack:** ESP32 (Wokwi) + DHT22 + LDR -> MQTT (broker.hivemq.com) -> Node-RED
+
+**Topico:** dcandino/grupoWhari/sala1/ambiente
+
+**Clasificacion:**
+- normal: temp <=27, hum <=70, luz >=20
+- advertencia: temp >27 o hum >70 o luz <20
+- critico: temp >30 o hum >80 o luz <10
+
+**Evidencia:** captura debug con estado: normal / advertencia / critico
+"@ | Out-File -Encoding utf8 README.md
+
+git add README.md
+git commit -m "Agrega README TA3"
+git push
